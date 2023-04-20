@@ -28,7 +28,7 @@ def runSimulation(
 	},
 	parameters={
 		'truePeakSensitivity':18, 'truePeakFrequency':11,
-		'trueBandwidth':12, 'trueDelta':11,
+		'trueBandwidth':12, #'trueDelta':11,
 	},
 ):
 	logger.info('Starting simulation')
@@ -47,17 +47,25 @@ def runSimulation(
 		parameters['truePeakSensitivity'],
 		parameters['truePeakFrequency'],
 		parameters['trueBandwidth'],
-		parameters['trueDelta'],
+		#parameters['trueDelta'],
 	]])
+	
+	
+
 	qcsf = QuickCSF.QuickCSFEstimator(stimulusSpace)
 
+
+
 	graph = plot(qcsf, unmappedTrueParams=unmappedTrueParams)
+
+
 
 	# Trial loop
 	for i in range(trials):
 		# Get the next stimulus
 		stimulus = qcsf.next()
 		newStimValues = numpy.array([[stimulus.contrast, stimulus.frequency]])
+
 
 		# Simulate a response
 		if usePerfectResponses:
@@ -79,6 +87,11 @@ def runSimulation(
 		graph.clear()
 		graph.set_title(f'Estimated Contrast Sensitivity Function ({i+1})')
 		plot(qcsf, graph, unmappedTrueParams)
+
+		import pdb;
+		#pdb.set_trace()
+	
+
 
 		if imagePath is not None:
 			plt.savefig(pathlib.Path(imagePath+'/%f.png' % time.time()).resolve())
@@ -126,8 +139,7 @@ if __name__ == '__main__':
 	from . import log
 	log.startLog()
 
-	import pdb;
-	#pdb.set_trace()
+
 
 	parser = argparse.ArgumentParser()
 
@@ -151,7 +163,7 @@ if __name__ == '__main__':
 	parameterSettings.add_argument('-d', '--trueDelta', type=int, default=11, help='True delta truncation (index)')
 
 	settings = argparseqt.groupingTools.parseIntoGroups(parser)
-	pdb.set_trace()
+
 	
 	if settings['options']['trials'] is None:
 		pdb.set_trace()

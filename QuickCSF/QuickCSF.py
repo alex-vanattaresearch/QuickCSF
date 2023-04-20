@@ -69,16 +69,24 @@ def csf_unmapped(parameters, frequency):
 		Param order = peak sensitivity, peak frequency, bandwidth, log delta
 	'''
 	# Get everything into log-units
-	[peakSensitivity, peakFrequency, logBandwidth, delta] = mapCSFParams(parameters)
+	###***###
+	#[peakSensitivity, peakFrequency, logBandwidth, delta] = mapCSFParams(parameters)
+	#return csf(peakSensitivity, peakFrequency, logBandwidth, delta, frequency)
 
-	return csf(peakSensitivity, peakFrequency, logBandwidth, delta, frequency)
+	[peakSensitivity, peakFrequency, logBandwidth] = mapCSFParams(parameters)
+	return csf(peakSensitivity, peakFrequency, logBandwidth, frequency)
+	###***###
 
-def csf(peakSensitivity, peakFrequency, logBandwidth, delta, frequency):
+
+#def csf(peakSensitivity, peakFrequency, logBandwidth, delta, frequency):
+def csf(peakSensitivity, peakFrequency, logBandwidth, frequency):
 	frequency = numpy.log10(frequency)
 
 	if not isinstance(peakSensitivity, Iterable):
-		delta = numpy.log10(peakSensitivity) - numpy.log10(peakSensitivity-delta)
-		delta = numpy.array([delta])
+		###***###
+		#delta = numpy.log10(peakSensitivity) - numpy.log10(peakSensitivity-delta)
+		#delta = numpy.array([delta])
+		###***###
 
 		peakSensitivity = numpy.array([numpy.log10(peakSensitivity)])
 		peakFrequency = numpy.array([numpy.log10(peakFrequency)])
@@ -93,21 +101,28 @@ def csf(peakSensitivity, peakFrequency, logBandwidth, delta, frequency):
 
 	peakFrequency = peakFrequency[:,numpy.newaxis].repeat(m,1)
 	peakSensitivity = peakSensitivity[:,numpy.newaxis].repeat(m,1)
-	delta = delta[:,numpy.newaxis].repeat(m,1)
+	
+	###***###
+	#delta = delta[:,numpy.newaxis].repeat(m,1)
 
 	divisor = numpy.log10(2)+logBandwidth
 	divisor = divisor[:,numpy.newaxis].repeat(m,1)
 	truncation = (4 * numpy.log10(2) * numpy.power(numpy.divide(frequency-peakFrequency, divisor), 2))
 
 	logSensitivity = numpy.maximum(0, peakSensitivity - truncation)
-	Scutoff = numpy.maximum(logSensitivity, peakSensitivity-delta)
-	logSensitivity[frequency<peakFrequency] = Scutoff[frequency<peakFrequency]
+	
+	####***
+	#Scutoff = numpy.maximum(logSensitivity, peakSensitivity-delta)
+	#logSensitivity[frequency<peakFrequency] = Scutoff[frequency<peakFrequency]
 
 	return logSensitivity
 
-def aulcsf(peakSensitivity, peakFrequency, logBandwidth, delta, bucketWidth=.1):
+#def aulcsf(peakSensitivity, peakFrequency, logBandwidth, delta, bucketWidth=.1):
+def aulcsf(peakSensitivity, peakFrequency, logBandwidth, bucketWidth=.1):
 	def myCSF(frequency):
-		return csf(peakSensitivity, peakFrequency, logBandwidth, delta, frequency)[0][0]
+		###***###
+		#return csf(peakSensitivity, peakFrequency, logBandwidth, delta, frequency)[0][0]
+		return csf(peakSensitivity, peakFrequency, logBandwidth, frequency)[0][0]
 
 	gonePositive = False
 	done = False
@@ -139,18 +154,23 @@ def mapCSFParams(params, exponify=False):
 	peakSensitivity = 0.1*params[:,0] + 0.3
 	peakFrequency = -0.7 + 0.1*params[:,1]
 	bandwidth = 0.05 * params[:,2]
-	logDelta = -1.7 + 0.1 * params[:,3]
-	delta = numpy.power(10, logDelta)
+	
+	###***###
+	#logDelta = -1.7 + 0.1 * params[:,3]
+	#delta = numpy.power(10, logDelta)
 
 	if exponify:
-		deltaDiff = numpy.power(10, peakSensitivity-delta)
+		###***###
+		#deltaDiff = numpy.power(10, peakSensitivity-delta)
 
 		peakSensitivity = numpy.power(10, peakSensitivity)
 		peakFrequency = numpy.power(10, peakFrequency)
 		bandwidth = numpy.power(10, bandwidth)
-		delta = peakSensitivity - deltaDiff
-
-	return numpy.stack((peakSensitivity, peakFrequency, bandwidth, delta))
+		
+		###***###
+		#delta = peakSensitivity - deltaDiff
+	#return numpy.stack((peakSensitivity, peakFrequency, bandwidth, delta))
+	return numpy.stack((peakSensitivity, peakFrequency, bandwidth))
 
 def entropy(p):
 	return numpy.multiply(-p, numpy.log(p)) - numpy.multiply(1-p, numpy.log(1-p))
@@ -173,7 +193,8 @@ class QuickCSFEstimator():
 			numpy.arange(0, 28),	# Peak sensitivity
 			numpy.arange(0, 21),	# Peak frequency
 			numpy.arange(0, 21),	# Log bandwidth
-			numpy.arange(0, 21)		# Low frequency truncation (log delta)
+			###***###
+			#numpy.arange(0, 21)		# Low frequency truncation (log delta)
 		]
 
 		logger.info('Initializing QuickCSFEStimator')
@@ -355,12 +376,14 @@ class QuickCSFEstimator():
 		if not leaveAsIndices:
 			results = mapCSFParams(results, True).T
 
-		results = results.reshape(4).tolist()
+		###***### CHANGED FROM 4 TO 3
+		results = results.reshape(3).tolist()
 
 		return {
 			'peakSensitivity': results[0],
 			'peakFrequency': results[1],
 			'bandwidth': results[2],
-			'delta': results[3],
+			###***###
+			#'delta': results[3],
 			'aulcsf': aulcsf(*results)
 		}

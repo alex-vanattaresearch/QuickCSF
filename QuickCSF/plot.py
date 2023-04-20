@@ -36,7 +36,8 @@ def plot(qCSFEstimator, graph=None, unmappedTrueParams=None, showNumbers=True, s
 		estimatedParamMeans['peakSensitivity'],
 		estimatedParamMeans['peakFrequency'],
 		estimatedParamMeans['bandwidth'],
-		estimatedParamMeans['delta'],
+		###***###
+		#estimatedParamMeans['delta'],
 	]])
 	estimatedData = QuickCSF.csf_unmapped(estimatedParamMeans.reshape(1, -1), frequencyDomain)
 	estimatedData = numpy.power(10, estimatedData)
@@ -76,12 +77,17 @@ def plot(qCSFEstimator, graph=None, unmappedTrueParams=None, showNumbers=True, s
 	if showNumbers:
 		estimatedParamMeans = QuickCSF.mapCSFParams(estimatedParamMeans, exponify=True)
 		estimatedParamMeans = estimatedParamMeans.reshape(1,-1).tolist()[0]
-		paramEstimates = '%03.2f, %.4f, %.4f, %.4f' % tuple(estimatedParamMeans)
+		
+		###***###
+		#paramEstimates = '%03.2f, %.4f, %.4f, %.4f' % tuple(estimatedParamMeans)
+		paramEstimates = '%03.2f, %.4f, %.4f' % tuple(estimatedParamMeans)
 		estimatedLine.set_label(f'Estim: {paramEstimates}')
 
 		if truthData is not None:
 			trueParams = QuickCSF.mapCSFParams(unmappedTrueParams, True).T.tolist()[0]
-			trueParams = '%03.2f, %.4f, %.4f, %.4f' % tuple(trueParams)
+			###***###
+			#trueParams = '%03.2f, %.4f, %.4f, %.4f' % tuple(trueParams)
+			trueParams = '%03.2f, %.4f, %.4f' % tuple(trueParams)
 			truthLine.set_label(f'Truth: {trueParams}')
 
 		graph.legend()
