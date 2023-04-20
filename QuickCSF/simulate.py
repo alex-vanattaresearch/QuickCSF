@@ -126,6 +126,9 @@ if __name__ == '__main__':
 	from . import log
 	log.startLog()
 
+	import pdb;
+	#pdb.set_trace()
+
 	parser = argparse.ArgumentParser()
 
 	parser.add_argument('-n', '--trials', type=int, help='Number of trials to simulate')
@@ -148,11 +151,17 @@ if __name__ == '__main__':
 	parameterSettings.add_argument('-d', '--trueDelta', type=int, default=11, help='True delta truncation (index)')
 
 	settings = argparseqt.groupingTools.parseIntoGroups(parser)
-	if settings['trials'] is None:
+	pdb.set_trace()
+	
+	if settings['options']['trials'] is None:
+		pdb.set_trace()
 		from qtpy import QtWidgets
 		from . import ui
 		app = QtWidgets.QApplication()
 		settings = ui.getSettings(parser, settings, ['trials'])
 
 	if settings is not None:
-		runSimulation(**settings)
+		opt = settings['options']
+		stimuliSettings = settings['stimuli']
+		trueParmaSettings = settings['parameters']
+		runSimulation(opt['trials'], opt['imagePath'], opt['usePerfectResponses'], stimuliSettings, trueParmaSettings)
